@@ -38,12 +38,9 @@ public class MainActivity extends AppCompatActivity {
         mainBinding.buttonCamera.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (ContextCompat.checkSelfPermission(MainActivity.this,Manifest.permission.CAMERA)
-                        != PackageManager.PERMISSION_GRANTED) {
-
-                    ActivityCompat.requestPermissions(MainActivity.this,new String[]{Manifest.permission.CAMERA},
+                ActivityCompat.requestPermissions(MainActivity.this,new String[]{Manifest.permission.CAMERA},
                             Request_Code_Camera);
-                }
+
             }
         });
     }
@@ -62,8 +59,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         if(requestCode == Request_Code_Camera && resultCode == RESULT_OK && data != null){
-            InputStream inputStream = (InputStream) data.getExtras().get("data");
-            Bitmap bitmapDrawable = BitmapFactory.decodeStream(inputStream);
+            Bitmap bitmapDrawable = (Bitmap) data.getExtras().get("data");
             mainBinding.imageview.setImageBitmap(bitmapDrawable);
         }
         super.onActivityResult(requestCode, resultCode, data);
