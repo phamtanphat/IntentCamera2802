@@ -10,6 +10,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.media.MediaPlayer;
+import android.net.Uri;
 import android.os.Handler;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
@@ -21,6 +22,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Toast;
 
+import java.io.FileNotFoundException;
 import java.io.InputStream;
 
 import khoapham.ptp.phamtanphat.intentcamera.databinding.ActivityMainBinding;
@@ -29,6 +31,7 @@ import khoapham.ptp.phamtanphat.intentcamera.databinding.ActivityMainBinding;
 public class MainActivity extends AppCompatActivity {
 
     int Request_Code_Camera = 10;
+    int Request_Code_Gallery = 12;
     ActivityMainBinding mainBinding;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,7 +43,13 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 ActivityCompat.requestPermissions(MainActivity.this,new String[]{Manifest.permission.CAMERA},
                             Request_Code_Camera);
-
+            }
+        });
+        mainBinding.buttonGallery.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ActivityCompat.requestPermissions(MainActivity.this,new String[]{Manifest.permission.CAMERA},
+                        Request_Code_Gallery);
             }
         });
     }
@@ -53,6 +62,14 @@ public class MainActivity extends AppCompatActivity {
                 startActivityForResult(intent,Request_Code_Camera);
             }
         }
+        if (requestCode == Request_Code_Gallery){
+            if(grantResults[0] == PackageManager.PERMISSION_GRANTED){
+                Intent intent = new Intent();
+                intent.setAction(Intent.ACTION_PICK);
+                intent.setType("image/*");
+                startActivityForResult(intent,Request_Code_Gallery);
+            }
+        }
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
 
@@ -61,6 +78,16 @@ public class MainActivity extends AppCompatActivity {
         if(requestCode == Request_Code_Camera && resultCode == RESULT_OK && data != null){
             Bitmap bitmapDrawable = (Bitmap) data.getExtras().get("data");
             mainBinding.imageview.setImageBitmap(bitmapDrawable);
+        }
+        if(requestCode == Request_Code_Gallery && resultCode == RESULT_OK && data != null){
+            Uri uri = data.getData();
+            try {
+                InputStream inputStream = getContentResolver().openInputStream(uri);
+                Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
+                mainBinding.imageview.setImageBitmap(bitmap);
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
         }
         super.onActivityResult(requestCode, resultCode, data);
     }
